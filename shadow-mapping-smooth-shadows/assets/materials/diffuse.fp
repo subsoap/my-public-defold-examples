@@ -18,6 +18,12 @@ float rgba_to_float(vec4 rgba)
     return dot(rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0));
 }
 
+vec2 rand(vec2 co)
+{
+    return vec2(fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453),
+    fract(sin(dot(co.yx ,vec2(12.9898,78.233))) * 43758.5453)) * 0.00047;
+}
+
 float shadow_calculation(vec4 depth_data)
 {
     const float depth_bias = 0.002;
@@ -29,7 +35,8 @@ float shadow_calculation(vec4 depth_data)
     {
         for (int y = -1; y <= 1; ++y)
         {
-            float depth = rgba_to_float(texture2D(tex_depth, depth_data.st + vec2(x,y) * texel_size));
+            vec2 uv = depth_data.st + vec2(x,y) * texel_size;
+            float depth = rgba_to_float(texture2D(tex_depth,  uv + rand(uv) ));
             shadow += depth_data.z - depth_bias > depth ? 0.8 : 0.0;
         }
     }
